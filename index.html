@@ -9,13 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Amplitude -->
   <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
   <script>
     // ====== CONFIG ======
     // Replace with your real backend base URL and Amplitude API key.
     window.APP_CONFIG = {
-      API_BASE_URL: "http://localhost:3000", // e.g. https://api.example.com
+      API_BASE_URL: "https://harrypotterhouses.onrender.com", // <-- ¡Tu API de Render aquí!
       AMPLITUDE_API_KEY: "" // e.g. "abc123..."
     };
 
@@ -215,7 +214,6 @@
 </head>
 <body>
 
-  <!-- =========== LIST VIEW =========== -->
   <main id="view-list">
     <section class="hero">
       <div class="hero-inner">
@@ -236,7 +234,6 @@
     <footer><p>Draco Dormiens Nunquam Titillandus</p></footer>
   </main>
 
-  <!-- =========== DETAIL VIEW =========== -->
   <main id="view-detail" class="hidden">
     <div class="detail-wrap" id="detail-content"></div>
     <footer><p>Draco Dormiens Nunquam Titillandus</p></footer>
