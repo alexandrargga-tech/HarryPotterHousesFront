@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hogwarts Houses — The Wizarding Compendium</title>
+  <meta name="description" content="Explore the four houses of Hogwarts: Gryffindor, Slytherin, Ravenclaw and Hufflepuff." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Amplitude -->
+  <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
+  <script>
+    // ====== CONFIG ======
+    // Replace with your real backend base URL and Amplitude API key.
+    window.APP_CONFIG = {
+      API_BASE_URL: "http://localhost:3000", // e.g. https://api.example.com
+      AMPLITUDE_API_KEY: "" // e.g. "abc123..."
+    };
+
+    if (window.APP_CONFIG.AMPLITUDE_API_KEY && window.amplitude) {
+      window.amplitude.init(window.APP_CONFIG.AMPLITUDE_API_KEY, undefined, {
+        defaultTracking: { sessions: true, pageViews: true, formInteractions: true, fileDownloads: true }
+      });
+    }
+    function track(event, props) {
+      try {
+        if (window.amplitude && window.APP_CONFIG.AMPLITUDE_API_KEY) {
+          window.amplitude.track(event, props || {});
+        } else {
+          console.log("[analytics:dev]", event, props || {});
+        }
+      } catch (e) { console.warn("track failed", e); }
+    }
+  </script>
+
+  <style>
+    :root {
+      --background: #1a1530;
+      --foreground: #f3ead4;
+      --card: #221c3d;
+      --muted: #2a2447;
+      --muted-foreground: #b6ad8e;
+      --border: rgba(140, 120, 70, 0.3);
+      --gold: #d4af37;
+      --gold-glow: #f1c552;
+      --gradient-hero: linear-gradient(135deg, #1a1530 0%, #2b2150 60%, #5a2a1a 100%);
+      --shadow-magical: 0 20px 60px -20px rgba(212, 175, 55, 0.35);
+      --font-serif: "Cinzel", "Cormorant Garamond", Georgia, serif;
+      --font-body: "Cormorant Garamond", Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    h1, h2, h3, h4 { font-family: var(--font-serif); letter-spacing: 0.02em; }
+    a { color: inherit; text-decoration: none; }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: var(--gradient-hero);
+      padding: 8rem 1.5rem;
+      text-align: center;
+    }
+    .hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: radial-gradient(2px 2px at 20% 30%, #fff8, transparent),
+                        radial-gradient(1.5px 1.5px at 70% 60%, #fff6, transparent),
+                        radial-gradient(1px 1px at 40% 80%, #fff5, transparent),
+                        radial-gradient(2px 2px at 85% 20%, #fff7, transparent);
+      opacity: 0.6;
+    }
+    .hero-inner { position: relative; max-width: 64rem; margin: 0 auto; }
+    .eyebrow {
+      color: var(--gold);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-serif);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 .accent { color: var(--gold); }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--muted-foreground);
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+
+    /* HOUSES SECTION */
+    .section { max-width: 72rem; margin: 0 auto; padding: 5rem 1.5rem; }
+    .section h2 {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section h2 .accent { color: var(--gold); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      background: var(--card);
+      padding: 2rem;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      display: block;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-magical); }
+    .card .bg-emoji {
+      position: absolute;
+      right: -2.5rem; top: -2.5rem;
+      font-size: 10rem;
+      opacity: 0.1;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .card:hover .bg-emoji { opacity: 0.2; }
+    .card .emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .card h3 { font-size: 1.875rem; margin-bottom: 0.5rem; }
+    .card .founder { color: var(--muted-foreground); margin-bottom: 1rem; }
+    .pill-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .pill {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      font-size: 0.875rem;
+    }
+    .card .cta {
+      margin-top: 1.5rem;
+      color: var(--gold);
+      font-size: 0.875rem;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .card:hover .cta { opacity: 1; }
+
+    .skeleton { height: 14rem; border-radius: 0.75rem; background: var(--card); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    /* DETAIL VIEW */
+    .detail-wrap {
+      min-height: 100vh;
+      padding: 3rem 1.5rem;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      color: var(--muted-foreground);
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+    .detail-header { text-align: center; margin-bottom: 3rem; max-width: 64rem; margin-left: auto; margin-right: auto; }
+    .detail-header .emoji { font-size: 5rem; margin-bottom: 1rem; }
+    .detail-header h1 { font-size: clamp(2.5rem, 5vw, 3.75rem); margin-bottom: 0.75rem; }
+    .detail-header .founder { color: var(--muted-foreground); font-style: italic; }
+    .colors { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+    .color-bar { width: 3rem; height: 0.5rem; border-radius: 9999px; }
+
+    .panels { max-width: 64rem; margin: 0 auto; display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+    @media (min-width: 768px) { .panels { grid-template-columns: 1fr 1fr; } }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      background: rgba(34, 28, 61, 0.6);
+      backdrop-filter: blur(6px);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-magical);
+    }
+    .panel h2 { color: var(--gold); font-size: 1.25rem; margin-bottom: 1rem; }
+    .panel p { color: var(--muted-foreground); }
+    .row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(140,120,70,0.2); font-size: 0.95rem; }
+    .row:last-child { border-bottom: none; }
+    .row dt { color: var(--muted-foreground); }
+    .members { list-style: none; }
+    .members li { padding: 0.4rem 0; color: var(--muted-foreground); display: flex; gap: 0.5rem; align-items: center; }
+    .members li::before { content: "✦"; color: var(--gold); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted-foreground);
+      font-family: var(--font-serif);
+      letter-spacing: 0.1em;
+      font-size: 0.875rem;
+    }
+
+    .hidden { display: none !important; }
+    .error { color: #f87171; text-align: center; padding: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- =========== LIST VIEW =========== -->
+  <main id="view-list">
+    <section class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Anno MCMXCVII</p>
+        <h1>The Houses of <span class="accent">Hogwarts</span></h1>
+        <p>Four founders. Four legacies. Discover where the Sorting Hat would place you among the ancient halls of witchcraft and wizardry.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Choose your <span class="accent">House</span></h2>
+      <div id="houses-grid" class="grid">
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </section>
+
+    <footer><p>Draco Dormiens Nunquam Titillandus</p></footer>
+  </main>
+
+  <!-- =========== DETAIL VIEW =========== -->
+  <main id="view-detail" class="hidden">
+    <div class="detail-wrap" id="detail-content"></div>
+    <footer><p>Draco Dormiens Nunquam Titillandus</p></footer>
+  </main>
+
+  <script>
+    // ====== API CLIENT ======
+    // Backend contract (build it however you like):
+    //   GET {API_BASE_URL}/houses          -> HouseSummary[]
+    //   GET {API_BASE_URL}/houses/:id      -> HouseDetail
+    //
+    // HouseSummary = { id, name, founder, animal, element, colors:[c1,c2], emoji }
+    // HouseDetail extends HouseSummary with:
+    //   { traits:string[], commonRoom, ghost, headOfHouse, description, notableMembers:string[] }
+    async function apiFetch(path) {
+      const url = window.APP_CONFIG.API_BASE_URL.replace(/\/$/, "") + path;
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+    const HousesAPI = {
+      list: () => apiFetch("/houses"),
+      get:  (id) => apiFetch("/houses/" + encodeURIComponent(id)),
+    };
+
+    // ====== ROUTER (hash based, static-friendly) ======
+    function parseRoute() {
+      const hash = window.location.hash.replace(/^#\/?/, "");
+      if (!hash) return { name: "list" };
+      const m = hash.match(/^houses\/([^/]+)$/);
+      if (m) return { name: "detail", id: decodeURIComponent(m[1]) };
+      return { name: "list" };
+    }
+
+    function navigate(hash) {
+      window.location.hash = hash;
+    }
+
+    function render() {
+      const route = parseRoute();
+      const list = document.getElementById("view-list");
+      const detail = document.getElementById("view-detail");
+      if (route.name === "detail") {
+        list.classList.add("hidden");
+        detail.classList.remove("hidden");
+        renderDetail(route.id);
+      } else {
+        detail.classList.add("hidden");
+        list.classList.remove("hidden");
+        track("page_viewed", { page: "houses_list" });
+      }
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    // ====== LIST RENDER ======
+    async function loadList() {
+      const grid = document.getElementById("houses-grid");
+      try {
+        const houses = await HousesAPI.list();
+        grid.innerHTML = "";
+        houses.forEach(h => grid.appendChild(houseCardEl(h)));
+      } catch (e) {
+        grid.innerHTML = '<div class="error">Could not load houses: ' + e.message + '</div>';
+      }
+    }
+
+    function houseCardEl(h) {
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = "#/houses/" + h.id;
+      const c1 = (h.colors && h.colors[0]) || "#444";
+      const c2 = (h.colors && h.colors[1]) || "#888";
+      a.style.background = `linear-gradient(135deg, ${c1}55, ${c2}25)`;
+      a.innerHTML = `
+        <div class="bg-emoji" aria-hidden="true">${h.emoji || ""}</div>
+        <div class="emoji">${h.emoji || ""}</div>
+        <h3>${escapeHtml(h.name)}</h3>
+        <p class="founder">Founded by ${escapeHtml(h.founder || "")}</p>
+        <div class="pill-row">
+          <span class="pill">${escapeHtml(h.animal || "")}</span>
+          <span class="pill">${escapeHtml(h.element || "")}</span>
+        </div>
+        <p class="cta">Enter the common room →</p>
+      `;
+      a.addEventListener("click", () => {
+        track("house_card_clicked", { house_id: h.id, house_name: h.name });
+      });
+      return a;
+    }
+
+    // ====== DETAIL RENDER ======
+    async function renderDetail(id) {
+      const root = document.getElementById("detail-content");
+      root.innerHTML = '<div class="skeleton" style="max-width:64rem;margin:0 auto;height:24rem"></div>';
+      try {
+        const h = await HousesAPI.get(id);
+        if (!h) throw new Error("Not found");
+        track("house_detail_viewed", { house_id: h.id, house_name: h.name });
+        const c1 = (h.colors && h.colors[0]) || "#444";
+        const c2 = (h.colors && h.colors[1]) || "#888";
+        document.body.style.background =
+          `radial-gradient(ellipse at top, ${c1}55, var(--background) 60%)`;
+
+        root.innerHTML = `
+          <a class="back-link" href="#/" id="back-link">← Back to all houses</a>
+          <header class="detail-header">
+            <div class="emoji">${h.emoji || ""}</div>
+            <h1 style="color:${c2}">${escapeHtml(h.name)}</h1>
+            <p class="founder">Founded by ${escapeHtml(h.founder || "")}</p>
+            <div class="colors">
+              <span class="color-bar" style="background:${c1}"></span>
+              <span class="color-bar" style="background:${c2}"></span>
+            </div>
+          </header>
+          <div class="panels">
+            <section class="panel">
+              <h2>About</h2>
+              <p>${escapeHtml(h.description || "")}</p>
+            </section>
+            <section class="panel">
+              <h2>Defining Traits</h2>
+              <div class="pill-row">
+                ${(h.traits || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join("")}
+              </div>
+            </section>
+            <section class="panel">
+              <h2>The Essentials</h2>
+              <dl>
+                ${rowEl("Animal", h.animal)}
+                ${rowEl("Element", h.element)}
+                ${rowEl("Common Room", h.commonRoom)}
+                ${rowEl("Ghost", h.ghost)}
+                ${rowEl("Head of House", h.headOfHouse)}
+              </dl>
+            </section>
+            <section class="panel">
+              <h2>Notable Members</h2>
+              <ul class="members">
+                ${(h.notableMembers || []).map(m => `<li>${escapeHtml(m)}</li>`).join("")}
+              </ul>
+            </section>
+          </div>
+        `;
+        document.getElementById("back-link").addEventListener("click", () => {
+          track("back_to_houses_clicked", { from: h.id });
+          document.body.style.background = "var(--background)";
+        });
+      } catch (e) {
+        root.innerHTML = `
+          <a class="back-link" href="#/">← Back to all houses</a>
+          <div class="error">This house remains a mystery. (${escapeHtml(e.message)})</div>
+        `;
+      }
+    }
+
+    function rowEl(label, value) {
+      return `<div class="row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value || "—")}</dd></div>`;
+    }
+    function escapeHtml(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    // ====== BOOT ======
+    window.addEventListener("hashchange", render);
+    loadList();
+    render();
+  </script>
+</body>
+</html>
