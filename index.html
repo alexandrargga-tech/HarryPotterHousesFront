@@ -12,10 +12,10 @@
   <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
   <script>
     // ====== CONFIG ======
-    // Replace with your real backend base URL and Amplitude API key.
+    // Reemplaza con tu base URL real y tu API key de Amplitude.
     window.APP_CONFIG = {
       API_BASE_URL: "https://harrypotterhouses.onrender.com", // <-- ¡Tu API de Render aquí!
-      AMPLITUDE_API_KEY: "" // e.g. "abc123..."
+      AMPLITUDE_API_KEY: "d1fa84a5019fc0b17023eae3369cda7" // <-- Pon tu "abc123..." API Key aquí
     };
 
     if (window.APP_CONFIG.AMPLITUDE_API_KEY && window.amplitude) {
@@ -202,7 +202,7 @@
 
     /* SORTING HAT SECTION (NEW) */
     .sorting-hat-wrapper {
-      margin-top: auto; /* Pushes to the bottom */
+      margin-top: auto;
       padding: 3rem 1.5rem;
       background: rgba(26, 21, 48, 0.8);
       border-top: 1px solid var(--border);
@@ -291,7 +291,7 @@
       font-family: var(--font-serif);
       letter-spacing: 0.1em;
       font-size: 0.875rem;
-      background: var(--background); /* Unified footer background */
+      background: var(--background);
     }
 
     .hidden { display: none !important; }
@@ -354,7 +354,6 @@
     const HousesAPI = {
       list: () => apiFetch("/houses"),
       get:  (id) => apiFetch("/houses/" + encodeURIComponent(id)),
-      // New endpoint for the AI sorting hat
       sort: (description) => apiFetch("/SortingHat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -362,7 +361,7 @@
       })
     };
 
-    // ====== ROUTER (hash based, static-friendly) ======
+    // ====== ROUTER ======
     function parseRoute() {
       const hash = window.location.hash.replace(/^#\/?/, "");
       if (!hash) return { name: "list" };
@@ -382,6 +381,7 @@
       } else {
         detail.classList.add("hidden");
         list.classList.remove("hidden");
+        // 📊 EVENTO: Vista principal cargada
         track("page_viewed", { page: "houses_list" });
       }
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -395,6 +395,8 @@
         grid.innerHTML = "";
         houses.forEach(h => grid.appendChild(houseCardEl(h)));
       } catch (e) {
+        // 📊 EVENTO: Error al cargar la lista
+        track("api_error", { endpoint: "list_houses", error_message: e.message });
         grid.innerHTML = '<div class="error">Could not load houses: ' + e.message + '</div>';
       }
     }
@@ -418,6 +420,7 @@
         <p class="cta">Enter the common room →</p>
       `;
       a.addEventListener("click", () => {
+        // 📊 EVENTO: Clic en una casa específica
         track("house_card_clicked", { house_id: h.id, house_name: h.name });
       });
       return a;
@@ -430,7 +433,10 @@
       try {
         const h = await HousesAPI.get(id);
         if (!h) throw new Error("Not found");
+        
+        // 📊 EVENTO: Vista de detalle cargada exitosamente
         track("house_detail_viewed", { house_id: h.id, house_name: h.name });
+        
         const c1 = (h.colors && h.colors[0]) || "#444";
         const c2 = (h.colors && h.colors[1]) || "#888";
         document.body.style.background =
@@ -477,10 +483,13 @@
           </div>
         `;
         document.getElementById("back-link").addEventListener("click", () => {
-          track("back_to_houses_clicked", { from: h.id });
+          // 📊 EVENTO: Botón de regreso presionado
+          track("back_to_houses_clicked", { from_house_id: h.id });
           document.body.style.background = "var(--background)";
         });
       } catch (e) {
+        // 📊 EVENTO: Error al cargar el detalle de una casa
+        track("api_error", { endpoint: "detail_house", house_id: id, error_message: e.message });
         root.innerHTML = `
           <a class="back-link" href="#/">← Back to all houses</a>
           <div class="error">This house remains a mystery. (${escapeHtml(e.message)})</div>
@@ -507,6 +516,8 @@
       const description = inputEl.value.trim();
       
       if (!description) {
+        // 📊 EVENTO: Intento fallido (campo vacío)
+        track("sorting_hat_validation_failed", { reason: "empty_input" });
         alert("Please describe yourself before putting on the hat!");
         return;
       }
@@ -517,16 +528,20 @@
       resultContainer.classList.remove('hidden');
       resultText.innerHTML = "<em>The Hat is deliberating...</em>";
 
+      // 📊 EVENTO: Se inició el proceso del sombrero
+      track("sorting_hat_started", { description_length: description.length });
+
       try {
         const response = await HousesAPI.sort(description);
-        
-        // Assuming your AI will eventually return JSON like: { "response": "Ah, yes, GRYFFINDOR!" }
-        // We fallback to JSON.stringify just in case the structure is different at first.
         const aiMessage = response.message || response.response || response.house || JSON.stringify(response);
         
         resultText.innerHTML = `<strong>The Hat says:</strong> "${escapeHtml(aiMessage)}"`;
-        track("sorting_hat_used", { description_length: description.length });
+        
+        // 📊 EVENTO: El sombrero arrojó un resultado exitoso
+        track("sorting_hat_success", { assigned_house: aiMessage }); 
       } catch (error) {
+        // 📊 EVENTO: Error en el API del sombrero
+        track("api_error", { endpoint: "sorting_hat", error_message: error.message });
         resultText.innerHTML = `<span style="color:#f87171">The Hat slipped off! (Error: ${escapeHtml(error.message)})</span>`;
       } finally {
         // Reset Button
